@@ -1,10 +1,14 @@
-import './App.css'
+import Header from './components/Header/Header';
+import ObligationsList from './components/ObligationsList/ObligationsList';
+
+import './App.css';
 
 function App() {
 
   return (
     <>
-      <p>ready for fight</p>
+      <Header />
+      <ObligationsList />
     </>
   )
 }
