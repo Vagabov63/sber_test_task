@@ -9,10 +9,10 @@ const useObligationsStore = create((set, get) => ({
   loading: false,
   error: null,
 
-  loadObligations: async () => {
+  loadObligations: async (filters) => {
     set({ loading: true, error: null });
     try {
-      const data = await getObligations();
+      const data = await getObligations(filters);
       
       const sortedData = [...data].sort((a, b) => {
         return new Date(a.next_payment_date) - new Date(b.next_payment_date);

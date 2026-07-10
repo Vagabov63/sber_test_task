@@ -1,13 +1,20 @@
 import { useEffect, useState, useRef } from "react";
 import useObligationsStore from "../store/obligationsStore";
+import { useFilters } from "./useFilters";
 
 export function useSSE() {
-  const isFirstConnection = useRef(true);
+  // const isFirstConnection = useRef(true);
   const [status, setStatus] = useState('disconnected');
+  const { apiFilters } = useFilters();
   
   const loadObligations = useObligationsStore((state) => state.loadObligations);
 
   const reconnectTimeoutRef = useRef(null);
+
+  const apiFiltersRef = useRef(apiFilters);
+  useEffect(() => {
+    apiFiltersRef.current = apiFilters;
+  }, [apiFilters]);
 
   useEffect(() => {
     let eventSource = null;
@@ -23,23 +30,23 @@ export function useSSE() {
       eventSource.onopen = () => {
         setStatus('connected');
         reconnectAttempts = 0;
-        if (!isFirstConnection.current) {
-          loadObligations();
-        } else {
-          isFirstConnection.current = false;
-        }
+        // if (!isFirstConnection.current) {
+          loadObligations(apiFilters);
+        // } else {
+        //   isFirstConnection.current = false;
+        // }
       };
 
       eventSource.addEventListener('obligation_updated', () => {
-        loadObligations();
+        loadObligations(apiFilters);
       });
 
       eventSource.addEventListener('obligation_deleted', () => {
-        loadObligations();
+        loadObligations(apiFilters);
       });
 
       eventSource.addEventListener('obligation_created', () => {
-        loadObligations();
+        loadObligations(apiFilters);
       });
 
       eventSource.onerror = () => {
@@ -75,7 +82,7 @@ export function useSSE() {
         setStatus('disconnected');
       }
     };
-  }, [loadObligations]);
+  }, [loadObligations, apiFilters]);
 
   return { status };
 }

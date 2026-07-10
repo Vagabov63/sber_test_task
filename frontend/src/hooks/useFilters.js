@@ -37,7 +37,7 @@ export const useFilters = () => {
     if (filters.category) result.category = filters.category;
     if (filters.status) result.status = filters.status;
     return result;
-  }, [filters]);
+  }, [filters.category, filters.status]);
 
   return {
     filters,

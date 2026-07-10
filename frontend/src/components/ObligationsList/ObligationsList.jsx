@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 
 import useObligationsStore from '../../store/obligationsStore';
 import { useFilters } from '../../hooks/useFilters';
@@ -10,14 +10,15 @@ export default function ObligationsList() {
     obligations, 
     loading, 
     error,
-    loadObligations,
+    // loadObligations,
   } = useObligationsStore();
 
-  const fetchData = useCallback(() => {
-    loadObligations();
-  }, [loadObligations]);
-
+  
   const { filters } = useFilters();
+  // const fetchData = useCallback(() => {
+  //   loadObligations(apiFilters);
+  // }, [loadObligations, apiFilters]);
+
   const filteredObligations = useMemo(() => {
     if (!obligations) return [];
 
@@ -36,9 +37,9 @@ export default function ObligationsList() {
     return result;
   }, [obligations, filters]);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  // useEffect(() => {
+  //   fetchData();
+  // }, [fetchData]);
 
   if (loading) return <div>Загрузка...</div>;
   if (error) return <div>Ошибка: {error}</div>;
