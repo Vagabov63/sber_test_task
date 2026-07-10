@@ -1,8 +1,9 @@
-import { useEffect, useCallback } from 'react';
-
-import './obligationsList.css';
+import { useEffect, useCallback, useMemo } from 'react';
 
 import useObligationsStore from '../../store/obligationsStore';
+import { useFilters } from '../../hooks/useFilters';
+import './obligationsList.css';
+
 
 export default function ObligationsList() {
   const { 
@@ -16,6 +17,22 @@ export default function ObligationsList() {
     loadObligations();
   }, [loadObligations]);
 
+  const filters = useFilters();
+    const filteredObligations = useMemo(() => {
+    if (!obligations) return [];
+
+    let result = [...obligations];
+
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      result = result.filter(item => 
+        item.title.toLowerCase().includes(searchLower)
+      );
+    }
+
+    return result;
+  }, [obligations, filters]);
+
   useEffect(() => {
     fetchData();
   }, [fetchData]);
@@ -23,13 +40,13 @@ export default function ObligationsList() {
   if (loading) return <div>Загрузка...</div>;
   if (error) return <div>Ошибка: {error}</div>;
 
-  if (!obligations || obligations.length === 0) {
+  if (!filteredObligations || filteredObligations.length === 0) {
     return <div>Нет обязательств</div>;
   }
 
   return (
     <div>
-      {obligations.map(item => (
+      {filteredObligations.map(item => (
         <div 
           className='obligationCard'
           key={item.id} 
