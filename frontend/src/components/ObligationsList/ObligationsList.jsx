@@ -17,17 +17,20 @@ export default function ObligationsList() {
     loadObligations();
   }, [loadObligations]);
 
-  const filters = useFilters();
-    const filteredObligations = useMemo(() => {
+  const { filters } = useFilters();
+  const filteredObligations = useMemo(() => {
     if (!obligations) return [];
 
     let result = [...obligations];
 
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
-      result = result.filter(item => 
-        item.title.toLowerCase().includes(searchLower)
-      );
+      
+      result = result.filter(item => {
+        const titleLower = item.title.toLowerCase();
+        const matches = titleLower.includes(searchLower);
+        return matches;
+      });
     }
 
     return result;
