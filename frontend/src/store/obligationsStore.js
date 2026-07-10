@@ -1,9 +1,11 @@
 import { create } from 'zustand';
 
-import { getObligations } from '../api/apiObligations';
+import { getObligations, getUpcomingObligations, cancelObligation } from '../api/apiObligations';
 
 const useObligationsStore = create((set, get) => ({
   obligations: [],
+  upcomingObligations: [],
+  renewalAlerts: [],
   loading: false,
   error: null,
 
@@ -55,6 +57,51 @@ const useObligationsStore = create((set, get) => ({
 
   getCurrentMonthTotal: () => {
     return get().currentMonthTotals;
+  },
+
+  loadUpcomingObligations: async () => {
+    set({ loading: true, error: null });
+    try {
+      const response = await getUpcomingObligations();
+      
+      const obligations = response.obligations || [];
+      const totals = response.totals || null;
+      const renewalAlerts = response.renewal_alerts || [];
+      
+      const activeIds = new Set(
+        obligations
+          .filter(item => item.status === 'active')
+          .map(item => item.id)
+      );
+      
+      const filteredAlerts = renewalAlerts.filter(
+        alert => activeIds.has(alert.id)
+      );
+      
+      set({ 
+        upcomingObligations: obligations,
+        totals: totals,
+        renewalAlerts: filteredAlerts,
+        loading: false 
+      });
+    } catch (error) {
+      console.error('Ошибка загрузки:', error);
+      set({ 
+        error: error.message || 'Ошибка загрузки', 
+        loading: false 
+      });
+    }
+  },
+
+  cancelObligation: async (obligationId) => {
+    try {
+      await cancelObligation(obligationId);
+      await get().loadUpcomingObligations();
+      return { success: true };
+    } catch (error) {
+      console.error('Ошибка при отмене:', error);
+      return { success: false, error: error.message };
+    }
   },
 }));
 
