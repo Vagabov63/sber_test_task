@@ -87,16 +87,6 @@ export default function ObligationDetailsModal() {
     }
   };
 
-  // const getStatusColor = (status) => {
-  //   switch (status) {
-  //     case 'active': return '#4CAF50';
-  //     case 'cancelled': return '#f44336';
-  //     case 'paid': return '#2196F3';
-  //     case 'expired': return '#FF9800';
-  //     default: return '#999';
-  //   }
-  // };
-
   const handlePay = async () => {
     setShowPayConfirm(false);
     setPaymentSuccess(true);
@@ -152,12 +142,6 @@ export default function ObligationDetailsModal() {
         </button>
 
         <h2 className="modal-title">{title}</h2>
-        <div className="modal-badges">
-          <span className={`status-badge status-${status}`}>
-            {getStatusLabel(status)}
-          </span>
-          <span className="category-badge">{category}</span>
-        </div>
 
         <div className="tabs-container">
           <button

@@ -1,4 +1,4 @@
-import { BrowserRouter } from 'react-router-dom'
+import { BrowserRouter } from 'react-router-dom';
 
 import Header from './components/Header/Header';
 import UpcomingList from './components/UpcomingList/UpcomingList';
@@ -18,7 +18,7 @@ function App() {
       <ObligationsList />
       <ObligationDetailsModal />
     </BrowserRouter>
-  )
+  );
 }
 
-export default App
+export default App;

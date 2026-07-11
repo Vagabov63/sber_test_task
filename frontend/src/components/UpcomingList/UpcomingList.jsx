@@ -1,15 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 import useObligationsStore from '../../store/obligationsStore';
 
-import './UpcomingList.css'
+import './UpcomingList.css';
 
 export default function UpcomingList() {
   const { 
     loading, 
     error,
     renewalAlerts,
-    loadUpcomingObligations,
     cancelObligation,
     openObligationDetails,
   } = useObligationsStore();
@@ -57,10 +56,6 @@ export default function UpcomingList() {
     }
   };
 
-  useEffect(() => {
-    loadUpcomingObligations();
-  }, [loadUpcomingObligations]);
-
   if (loading) return <div>Загрузка...</div>;
   if (error) return <div>Ошибка: {error}</div>;
 
@@ -92,7 +87,7 @@ export default function UpcomingList() {
                   </button>
                 </div>
               </div>
-            )
+            );
           })
         }
       </div>

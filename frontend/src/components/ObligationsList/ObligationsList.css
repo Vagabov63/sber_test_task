@@ -34,7 +34,8 @@
   font-size: 12px;
   padding: 2px 10px;
   border-radius: 12px;
-  min-width: 60px
+  min-width: 90px;
+  padding: 2px 5px;
 }
 
 .obligationCardBody {
