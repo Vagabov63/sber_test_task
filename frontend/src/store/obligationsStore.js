@@ -112,31 +112,35 @@ const useObligationsStore = create((set, get) => ({
   },
 
   openObligationDetails: async (id) => {
-    set({ isProcessing: true, error: null });
-    try {
-      const { obligations } = get();
-      const obligation = obligations.find(item => item.id === id);
-      
-      if (!obligation) {
-        throw new Error('Обязательство не найдено');
-      }
-      
-      const payments = await getPaymentHistory(id);
-      
-      set({
-        selectedObligation: obligation,
-        paymentHistory: payments || [],
-        isModalOpen: true,
-        isProcessing: false,
-      });
-    } catch (error) {
-      console.error('Ошибка загрузки деталей:', error);
-      set({ 
-        error: error.message || 'Ошибка загрузки деталей',
-        isProcessing: false,
-      });
+  set({ isProcessing: true, error: null });
+  try {
+    const state = get();
+    
+    let obligation = state.obligations.find(item => item.id === id);
+    if (!obligation) {
+      obligation = state.upcomingObligations.find(item => item.id === id);
     }
-  },
+    
+    if (!obligation) {
+      throw new Error(`Обязательство с ID ${id} не найдено`);
+    }
+    
+    const payments = await getPaymentHistory(id);
+    
+    set({
+      selectedObligation: obligation,
+      paymentHistory: payments || [],
+      isModalOpen: true,
+      isProcessing: false,
+    });
+  } catch (error) {
+    console.error('Ошибка загрузки деталей:', error);
+    set({ 
+      error: error.message || 'Ошибка загрузки деталей',
+      isProcessing: false,
+    });
+  }
+},
 
   closeObligationDetails: () => {
     set({

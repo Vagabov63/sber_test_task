@@ -11,6 +11,7 @@ export default function UpcomingList() {
     renewalAlerts,
     loadUpcomingObligations,
     cancelObligation,
+    openObligationDetails,
   } = useObligationsStore();
 
   const [cancelingId, setCancelingId] = useState(null);
@@ -76,7 +77,7 @@ export default function UpcomingList() {
             const daysText = formatDays(daysLeft);
             const isCanceling = cancelingId === item.id;
             return (
-              <div key={item.id} className='upcomingCard'>
+              <div key={item.id} className='upcomingCard' onClick={() => openObligationDetails(item.id)}>
                 <div className='upcomingCardHead'>
                   <h3>{item.title}</h3>
                   <p>{item.amount} {item.currency}</p>

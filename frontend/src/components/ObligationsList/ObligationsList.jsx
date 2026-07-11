@@ -3,7 +3,6 @@ import { useMemo } from 'react';
 import useObligationsStore from '../../store/obligationsStore';
 import { useFilters } from '../../hooks/useFilters';
 
-import ObligationDetailsModal from '../ObligationDetailsModal/ObligationDetailsModal';
 import './ObligationsList.css';
 
 
@@ -13,14 +12,10 @@ export default function ObligationsList() {
     loading, 
     error,
     openObligationDetails,
-    // loadObligations,
   } = useObligationsStore();
 
   
   const { filters } = useFilters();
-  // const fetchData = useCallback(() => {
-  //   loadObligations(apiFilters);
-  // }, [loadObligations, apiFilters]);
 
   const filteredObligations = useMemo(() => {
     if (!obligations) return [];
@@ -39,10 +34,6 @@ export default function ObligationsList() {
 
     return result;
   }, [obligations, filters]);
-
-  // useEffect(() => {
-  //   fetchData();
-  // }, [fetchData]);
 
   if (loading) return <div>Загрузка...</div>;
   if (error) return <div>Ошибка: {error}</div>;
@@ -69,8 +60,6 @@ export default function ObligationsList() {
           </div>
         </div>
       ))}
-
-      <ObligationDetailsModal />
     </div>
   );
 }
