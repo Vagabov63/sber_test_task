@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import useObligationsStore from '../../store/obligationsStore';
 import { useFilters } from '../../hooks/useFilters';
-import './obligationsList.css';
+import './ObligationsList.css';
 
 
 export default function ObligationsList() {
@@ -49,7 +49,7 @@ export default function ObligationsList() {
   }
 
   return (
-    <div>
+    <div className='obligationGrid'>
       {filteredObligations.map(item => (
         <div 
           className='obligationCard'

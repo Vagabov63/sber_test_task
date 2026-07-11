@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 import useObligationsStore from '../../store/obligationsStore';
 
-import './upcomingList.css'
+import './UpcomingList.css'
 
 export default function UpcomingList() {
   const { 

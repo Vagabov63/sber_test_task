@@ -1,6 +1,6 @@
 import { useFilters } from '../../hooks/useFilters';
 
-import './obligationsFilters.css';
+import './ObligationsFilters.css';
 
 const CATEGORY_OPTIONS = [
   { value: 'subscription', label: 'Подписка' },
