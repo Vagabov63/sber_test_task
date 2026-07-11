@@ -38,14 +38,17 @@ export function useSSE() {
 
       eventSource.addEventListener('obligation_updated', () => {
         loadObligations(apiFilters);
+        loadUpcomingObligations();
       });
 
       eventSource.addEventListener('obligation_deleted', () => {
         loadObligations(apiFilters);
+        loadUpcomingObligations();
       });
 
       eventSource.addEventListener('obligation_created', () => {
         loadObligations(apiFilters);
+        loadUpcomingObligations();
       });
 
       eventSource.onerror = () => {

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import useObligationsStore from '../../store/obligationsStore';
@@ -14,26 +14,33 @@ export default function ObligationsList() {
     openObligationDetails,
   } = useObligationsStore();
 
-  
   const { filters } = useFilters();
+  
+  const [displayedObligations, setDisplayedObligations] = useState([]);
 
   const filteredObligations = useMemo(() => {
     if (!obligations) return [];
-
     let result = [...obligations];
-
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
-      
-      result = result.filter(item => {
-        const titleLower = item.title.toLowerCase();
-        const matches = titleLower.includes(searchLower);
-        return matches;
-      });
+      result = result.filter(item => item.title.toLowerCase().includes(searchLower));
     }
-
     return result;
   }, [obligations, filters]);
+
+  useEffect(() => {
+    const currentIds = filteredObligations.map(item => item.id).sort().join(',');
+    const displayIds = displayedObligations.map(item => item.id).sort().join(',');
+    
+    if (currentIds !== displayIds) {
+      
+      const timer = setTimeout(() => {
+        setDisplayedObligations(filteredObligations);
+      }, 300);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [filteredObligations, displayedObligations]);
 
   const getPaymentColor = (dateString, status) => {
     if(status !== 'active') {
@@ -85,33 +92,33 @@ export default function ObligationsList() {
   return (
     <div className='obligationGrid'>
       <AnimatePresence mode="popLayout">
-      {filteredObligations.map(item => (
-        <motion.div
-          key={item.id}
-          layout
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.8 }}
-          transition={{ duration: 0.3 }}
-          className="obligationCard"
-          onClick={() => openObligationDetails(item.id)}
-        >
-          <div className='obligationCardHead'>
-            <h3>{truncateText(item.title)}</h3>
-            <span style={{
-              background: getPaymentColor(item.next_payment_date, item.status),
-            }}>
-              {formatDate(item.next_payment_date)}
-            </span>
-          </div>
-          <div className='obligationCardBody'>
-            <span>{item.amount} {item.currency}</span>
-            <span>{item.category}</span>
-            <span>{item.status}</span>
-          </div>
-        </motion.div>
-      ))}
-    </AnimatePresence>
+        {displayedObligations.map(item => (
+          <motion.div
+            key={item.id}
+            layout
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.3 }}
+            className='obligationCard'
+            onClick={() => openObligationDetails(item.id)}
+          >
+            <div className='obligationCardHead'>
+              <h3>{truncateText(item.title)}</h3>
+              <span style={{
+                background: getPaymentColor(item.next_payment_date, item.status),
+              }}>
+                {formatDate(item.next_payment_date)}
+              </span>
+            </div>
+            <div className='obligationCardBody'>
+              <span>{item.amount} {item.currency}</span>
+              <span>{item.category}</span>
+              <span>{item.status}</span>
+            </div>
+          </motion.div>
+        ))}
+      </AnimatePresence>
     </div>
   );
 }

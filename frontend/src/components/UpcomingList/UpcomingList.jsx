@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import useObligationsStore from '../../store/obligationsStore';
 
@@ -67,12 +68,23 @@ export default function UpcomingList() {
     <div className='upcomingBlock'>
       <h3>Скоро спишут</h3>
       <div className='upcomingGrid'>
-        {renewalAlerts.map(item => {
+        <AnimatePresence mode="popLayout">
+          {renewalAlerts.map(item => {
             const daysLeft = getDaysUntil(item.next_payment_date);
             const daysText = formatDays(daysLeft);
             const isCanceling = cancelingId === item.id;
+            
             return (
-              <div key={item.id} className='upcomingCard' onClick={() => openObligationDetails(item.id)}>
+              <motion.div
+                key={item.id}
+                layout
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className='upcomingCard'
+                onClick={() => openObligationDetails(item.id)}
+              >
                 <div className='upcomingCardHead'>
                   <h3>{item.title}</h3>
                   <p>{item.amount} {item.currency}</p>
@@ -80,16 +92,19 @@ export default function UpcomingList() {
                 <div className='upcomingCardBody'>
                   <p>{daysText}</p>
                   <button
-                    onClick={() => handleCancel(item.id, item.title)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCancel(item.id, item.title);
+                    }}
                     disabled={isCanceling}
                   >
                     {isCanceling ? 'Отмена...' : 'Отменить'}
                   </button>
                 </div>
-              </div>
+              </motion.div>
             );
-          })
-        }
+          })}
+        </AnimatePresence>
       </div>
     </div>
   );
