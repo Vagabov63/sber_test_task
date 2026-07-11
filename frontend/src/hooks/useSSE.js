@@ -33,7 +33,6 @@ export function useSSE() {
         setStatus('connected');
         reconnectAttempts = 0;
         loadObligations(apiFilters);
-        loadUpcomingObligations();
       };
 
       eventSource.addEventListener('obligation_updated', () => {

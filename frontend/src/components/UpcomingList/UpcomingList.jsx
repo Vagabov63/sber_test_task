@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import useObligationsStore from '../../store/obligationsStore';
@@ -12,7 +12,12 @@ export default function UpcomingList() {
     renewalAlerts,
     cancelObligation,
     openObligationDetails,
+    loadUpcomingObligations,
   } = useObligationsStore();
+
+  useEffect(() => {
+    loadUpcomingObligations();
+  }, [loadUpcomingObligations]);
 
   const [cancelingId, setCancelingId] = useState(null);
 
