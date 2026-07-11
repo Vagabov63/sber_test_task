@@ -2,6 +2,8 @@ import { useMemo } from 'react';
 
 import useObligationsStore from '../../store/obligationsStore';
 import { useFilters } from '../../hooks/useFilters';
+
+import ObligationDetailsModal from '../ObligationDetailsModal/ObligationDetailsModal';
 import './ObligationsList.css';
 
 
@@ -10,6 +12,7 @@ export default function ObligationsList() {
     obligations, 
     loading, 
     error,
+    openObligationDetails,
     // loadObligations,
   } = useObligationsStore();
 
@@ -54,6 +57,7 @@ export default function ObligationsList() {
         <div 
           className='obligationCard'
           key={item.id} 
+          onClick={() => openObligationDetails(item.id)}
         >
           <div className='obligationCardHead'>
             <h3>{item.title}</h3>
@@ -65,6 +69,8 @@ export default function ObligationsList() {
           </div>
         </div>
       ))}
+
+      <ObligationDetailsModal />
     </div>
   );
 }

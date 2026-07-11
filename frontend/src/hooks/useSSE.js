@@ -8,6 +8,7 @@ export function useSSE() {
   const { apiFilters } = useFilters();
   
   const loadObligations = useObligationsStore((state) => state.loadObligations);
+  const loadUpcomingObligations = useObligationsStore((state) => state.loadUpcomingObligations);
 
   const reconnectTimeoutRef = useRef(null);
 
@@ -32,6 +33,7 @@ export function useSSE() {
         reconnectAttempts = 0;
         // if (!isFirstConnection.current) {
           loadObligations(apiFilters);
+          loadUpcomingObligations();
         // } else {
         //   isFirstConnection.current = false;
         // }
@@ -39,14 +41,17 @@ export function useSSE() {
 
       eventSource.addEventListener('obligation_updated', () => {
         loadObligations(apiFilters);
+        loadUpcomingObligations();
       });
 
       eventSource.addEventListener('obligation_deleted', () => {
         loadObligations(apiFilters);
+        loadUpcomingObligations();
       });
 
       eventSource.addEventListener('obligation_created', () => {
         loadObligations(apiFilters);
+        loadUpcomingObligations();
       });
 
       eventSource.onerror = () => {
@@ -82,7 +87,7 @@ export function useSSE() {
         setStatus('disconnected');
       }
     };
-  }, [loadObligations, apiFilters]);
+  }, [loadObligations, loadUpcomingObligations, apiFilters]);
 
   return { status };
 }

@@ -1,6 +1,13 @@
 import { create } from 'zustand';
 
-import { getObligations, getUpcomingObligations, cancelObligation } from '../api/apiObligations';
+import { 
+  getObligations,
+  getUpcomingObligations,
+  cancelObligation,
+  getPaymentHistory,
+  payObligation,
+  deleteObligation,
+} from '../api/apiObligations';
 
 const useObligationsStore = create((set, get) => ({
   obligations: [],
@@ -102,6 +109,111 @@ const useObligationsStore = create((set, get) => ({
       console.error('Ошибка при отмене:', error);
       return { success: false, error: error.message };
     }
+  },
+
+  openObligationDetails: async (id) => {
+    set({ isProcessing: true, error: null });
+    try {
+      const { obligations } = get();
+      const obligation = obligations.find(item => item.id === id);
+      
+      if (!obligation) {
+        throw new Error('Обязательство не найдено');
+      }
+      
+      const payments = await getPaymentHistory(id);
+      
+      set({
+        selectedObligation: obligation,
+        paymentHistory: payments || [],
+        isModalOpen: true,
+        isProcessing: false,
+      });
+    } catch (error) {
+      console.error('Ошибка загрузки деталей:', error);
+      set({ 
+        error: error.message || 'Ошибка загрузки деталей',
+        isProcessing: false,
+      });
+    }
+  },
+
+  closeObligationDetails: () => {
+    set({
+      isModalOpen: false,
+      selectedObligation: null,
+      paymentHistory: [],
+    });
+  },
+
+  payObligation: async (id) => {
+    set({ isProcessing: true, error: null });
+    try {
+      await payObligation(id);
+      
+      await get().loadObligations();
+      await get().loadUpcomingObligations();
+      
+      await get().openObligationDetails(id);
+      
+      set({ isProcessing: false });
+      return { success: true };
+    } catch (error) {
+      console.error('Ошибка оплаты:', error);
+      set({ 
+        error: error.message || 'Ошибка оплаты',
+        isProcessing: false,
+      });
+      return { success: false, error: error.message };
+    }
+  },
+
+  cancelObligationFromModal: async (id) => {
+    set({ isProcessing: true, error: null });
+    try {
+      await cancelObligation(id);
+      
+      await get().loadObligations();
+      await get().loadUpcomingObligations();
+      
+      // обновить модалку
+      await get().openObligationDetails(id);
+      
+      set({ isProcessing: false });
+      return { success: true };
+    } catch (error) {
+      console.error('Ошибка отмены:', error);
+      set({ 
+        error: error.message || 'Ошибка отмены',
+        isProcessing: false,
+      });
+      return { success: false, error: error.message };
+    }
+  },
+
+  deleteObligation: async (id) => {
+    set({ isProcessing: true, error: null });
+    try {
+      await deleteObligation(id);
+      
+      await get().loadObligations();
+      await get().loadUpcomingObligations();
+      
+      set({
+        isModalOpen: false,
+        selectedObligation: null,
+        paymentHistory: [],
+        isProcessing: false,
+      });
+      return { success: true };
+    } catch (error) {
+      console.error('Ошибка удаления:', error);
+      set({ 
+        error: error.message || 'Ошибка удаления',
+        isProcessing: false,
+      });
+      return { success: false, error: error.message };
+      }
   },
 }));
 
