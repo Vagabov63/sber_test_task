@@ -1,17 +1,32 @@
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import useObligationsStore from '../../store/obligationsStore';
+import Skeleton from '../Skeleton/Skeleton';
 
-import './upcomingList.css'
+import './UpcomingList.css';
 
 export default function UpcomingList() {
   const { 
-    loading, 
+    loadingUpcoming, 
     error,
     renewalAlerts,
-    loadUpcomingObligations,
     cancelObligation,
+    openObligationDetails,
+    loadUpcomingObligations,
   } = useObligationsStore();
+
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+
+  useEffect(() => {
+    loadUpcomingObligations();
+  }, [loadUpcomingObligations]);
+
+  useEffect(() => {
+    if (!loadingUpcoming && renewalAlerts.length > 0) {
+      setHasLoadedOnce(true);
+    }
+  }, [loadingUpcoming, renewalAlerts]);
 
   const [cancelingId, setCancelingId] = useState(null);
 
@@ -35,6 +50,28 @@ export default function UpcomingList() {
     return `через ${days} дней`;
   };
 
+  const getPaymentColor = (dateString) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const paymentDate = new Date(dateString);
+    paymentDate.setHours(0, 0, 0, 0);
+    
+    const diffTime = paymentDate - today;
+    const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    let color;
+    if (days <= 3) {
+      color = '#f44336';
+    } else if (days <= 7) {
+      color = '#ffe100ff';
+    } else {
+      color = '#a8a8a8ff';
+    }
+
+    return color;
+  };
+
   const handleCancel = async (obligationId, title) => {
     if (!window.confirm(`Вы уверены, что хотите отменить подписку "${title}"?`)) {
       return;
@@ -56,11 +93,17 @@ export default function UpcomingList() {
     }
   };
 
-  useEffect(() => {
-    loadUpcomingObligations();
-  }, [loadUpcomingObligations]);
+  if (!hasLoadedOnce && loadingUpcoming) {
+    return (
+      <div className="upcomingBlock">
+        <h3>Скоро спишут</h3>
+        <div className="upcomingGrid">
+          <Skeleton count={3} />
+        </div>
+      </div>
+    );
+  }
 
-  if (loading) return <div>Загрузка...</div>;
   if (error) return <div>Ошибка: {error}</div>;
 
   if (!renewalAlerts || renewalAlerts.length === 0) {
@@ -71,12 +114,24 @@ export default function UpcomingList() {
     <div className='upcomingBlock'>
       <h3>Скоро спишут</h3>
       <div className='upcomingGrid'>
-        {renewalAlerts.map(item => {
+        <AnimatePresence mode="popLayout">
+          {renewalAlerts.map(item => {
             const daysLeft = getDaysUntil(item.next_payment_date);
             const daysText = formatDays(daysLeft);
             const isCanceling = cancelingId === item.id;
+            
             return (
-              <div key={item.id} className='upcomingCard'>
+              <motion.div
+                key={item.id}
+                layout
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className='upcomingCard'
+                onClick={() => openObligationDetails(item.id)}
+                style={{ borderTop: `3px solid ${getPaymentColor(item.next_payment_date)}` }}
+              >
                 <div className='upcomingCardHead'>
                   <h3>{item.title}</h3>
                   <p>{item.amount} {item.currency}</p>
@@ -84,16 +139,19 @@ export default function UpcomingList() {
                 <div className='upcomingCardBody'>
                   <p>{daysText}</p>
                   <button
-                    onClick={() => handleCancel(item.id, item.title)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCancel(item.id, item.title);
+                    }}
                     disabled={isCanceling}
                   >
                     {isCanceling ? 'Отмена...' : 'Отменить'}
                   </button>
                 </div>
-              </div>
-            )
-          })
-        }
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
       </div>
     </div>
   );

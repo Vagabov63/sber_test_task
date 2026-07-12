@@ -1,0 +1,23 @@
+.skeleton {
+  pointer-events: none;
+}
+
+.skeleton-title {
+  height: 20px;
+  width: 70%;
+  background: #e0e0e0;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.skeleton-line {
+  height: 14px;
+  width: 90%;
+  background: #e0e0e0;
+  border-radius: 4px;
+  margin-bottom: 6px;
+}
+
+.skeleton-line.short {
+  width: 40%;
+}

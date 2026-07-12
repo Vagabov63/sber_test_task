@@ -1,13 +1,22 @@
-import { useEffect, useState, useRef } from "react";
-import useObligationsStore from "../store/obligationsStore";
+import { useEffect, useState, useRef } from 'react';
+import useObligationsStore from '../store/obligationsStore';
+import { useFilters } from './useFilters';
 
 export function useSSE() {
-  const isFirstConnection = useRef(true);
   const [status, setStatus] = useState('disconnected');
-  
+  const { apiFilters } = useFilters();
+
   const loadObligations = useObligationsStore((state) => state.loadObligations);
+  const loadUpcomingObligations = useObligationsStore(
+    (state) => state.loadUpcomingObligations,
+  );
 
   const reconnectTimeoutRef = useRef(null);
+
+  const apiFiltersRef = useRef(apiFilters);
+  useEffect(() => {
+    apiFiltersRef.current = apiFilters;
+  }, [apiFilters]);
 
   useEffect(() => {
     let eventSource = null;
@@ -17,47 +26,49 @@ export function useSSE() {
 
     const connect = () => {
       setStatus('connecting');
-      
+
       eventSource = new EventSource('http://localhost:8000/events');
 
       eventSource.onopen = () => {
         setStatus('connected');
         reconnectAttempts = 0;
-        if (!isFirstConnection.current) {
-          loadObligations();
-        } else {
-          isFirstConnection.current = false;
-        }
+        loadObligations(apiFilters);
       };
 
       eventSource.addEventListener('obligation_updated', () => {
-        loadObligations();
+        loadObligations(apiFilters);
+        loadUpcomingObligations();
       });
 
       eventSource.addEventListener('obligation_deleted', () => {
-        loadObligations();
+        loadObligations(apiFilters);
+        loadUpcomingObligations();
       });
 
       eventSource.addEventListener('obligation_created', () => {
-        loadObligations();
+        loadObligations(apiFilters);
+        loadUpcomingObligations();
       });
 
       eventSource.onerror = () => {
         setStatus('reconnecting');
-        
+
         if (eventSource) {
           eventSource.close();
           eventSource = null;
         }
 
         reconnectAttempts++;
-        
-        const delay = Math.min(baseDelay * Math.pow(1.5, reconnectAttempts), maxDelay);
-        
+
+        const delay = Math.min(
+          baseDelay * Math.pow(1.5, reconnectAttempts),
+          maxDelay,
+        );
+
         if (reconnectTimeoutRef.current) {
           clearTimeout(reconnectTimeoutRef.current);
         }
-        
+
         reconnectTimeoutRef.current = setTimeout(() => {
           connect();
         }, delay);
@@ -75,7 +86,7 @@ export function useSSE() {
         setStatus('disconnected');
       }
     };
-  }, [loadObligations]);
+  }, [loadObligations, loadUpcomingObligations, apiFilters]);
 
   return { status };
 }
