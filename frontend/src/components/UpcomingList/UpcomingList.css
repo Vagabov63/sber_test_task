@@ -4,6 +4,10 @@
   background-color: #ffffff;
   box-shadow: 0 1px 2px rgba(0,0,0,0.04);
   margin-bottom: 10px;
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
 }
 
 .upcomingBlock h3 {
@@ -17,7 +21,8 @@
   padding-bottom: 20px;
   display: grid;
   gap: 16px;
-  grid-template-columns: repeat(2, 1fr);
+  row-gap: 28px;
+  grid-template-column: repeat(2, 1fr);
   align-items: stretch;
   grid-auto-rows: 1fr
 }

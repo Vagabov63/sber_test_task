@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 import useObligationsStore from '../../store/obligationsStore';
 import { useFilters } from '../../hooks/useFilters';
+import Skeleton from '../Skeleton/Skeleton';
 
 import './ObligationsList.css';
 
@@ -43,7 +44,7 @@ export default function ObligationsList() {
 
   const getPaymentColor = (dateString, status) => {
     if(status !== 'active') {
-      return '#ffffffff';
+      return '#cdcdcdff';
     }
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -56,9 +57,9 @@ export default function ObligationsList() {
 
     let color;
     if (days <= 3) {
-      color = '#f44336';
+      color = '#ff5448ff';
     } else if (days <= 7) {
-      color = '#ffe100ff';
+      color = '#ffe836ff';
     } else {
       color = '#a8a8a8ff';
     }
@@ -70,7 +71,7 @@ export default function ObligationsList() {
     if (!dateString) return '—';
     return new Date(dateString).toLocaleDateString('ru-RU', {
       year: 'numeric',
-      month: 'long',
+      month: 'numeric',
       day: 'numeric',
     });
   };
@@ -85,13 +86,7 @@ export default function ObligationsList() {
     return (
       <div className="obligationGridWrapper">
         <div className="obligationGrid">
-          {[1, 2, 3, 4, 5, 6].map(i => (
-            <div key={i} className="obligationCard skeleton">
-              <div className="skeleton-title"></div>
-              <div className="skeleton-line"></div>
-              <div className="skeleton-line short"></div>
-            </div>
-          ))}
+          <Skeleton count={6} />
         </div>
       </div>
     );

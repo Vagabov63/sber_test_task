@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import useObligationsStore from '../../store/obligationsStore';
+import Skeleton from '../Skeleton/Skeleton';
 
 import './UpcomingList.css';
 
@@ -15,9 +16,17 @@ export default function UpcomingList() {
     loadUpcomingObligations,
   } = useObligationsStore();
 
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+
   useEffect(() => {
     loadUpcomingObligations();
   }, [loadUpcomingObligations]);
+
+  useEffect(() => {
+    if (!loadingUpcoming && renewalAlerts.length > 0) {
+      setHasLoadedOnce(true);
+    }
+  }, [loadingUpcoming, renewalAlerts]);
 
   const [cancelingId, setCancelingId] = useState(null);
 
@@ -41,6 +50,28 @@ export default function UpcomingList() {
     return `через ${days} дней`;
   };
 
+  const getPaymentColor = (dateString) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const paymentDate = new Date(dateString);
+    paymentDate.setHours(0, 0, 0, 0);
+    
+    const diffTime = paymentDate - today;
+    const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    let color;
+    if (days <= 3) {
+      color = '#f44336';
+    } else if (days <= 7) {
+      color = '#ffe100ff';
+    } else {
+      color = '#a8a8a8ff';
+    }
+
+    return color;
+  };
+
   const handleCancel = async (obligationId, title) => {
     if (!window.confirm(`Вы уверены, что хотите отменить подписку "${title}"?`)) {
       return;
@@ -62,7 +93,17 @@ export default function UpcomingList() {
     }
   };
 
-  if (loadingUpcoming) return <div>Загрузка...</div>;
+  if (!hasLoadedOnce && loadingUpcoming) {
+    return (
+      <div className="upcomingBlock">
+        <h3>Скоро спишут</h3>
+        <div className="upcomingGrid">
+          <Skeleton count={3} />
+        </div>
+      </div>
+    );
+  }
+
   if (error) return <div>Ошибка: {error}</div>;
 
   if (!renewalAlerts || renewalAlerts.length === 0) {
@@ -89,6 +130,7 @@ export default function UpcomingList() {
                 transition={{ duration: 0.3, ease: "easeOut" }}
                 className='upcomingCard'
                 onClick={() => openObligationDetails(item.id)}
+                style={{ borderTop: `3px solid ${getPaymentColor(item.next_payment_date)}` }}
               >
                 <div className='upcomingCardHead'>
                   <h3>{item.title}</h3>
