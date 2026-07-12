@@ -5,6 +5,7 @@ import UpcomingList from './components/UpcomingList/UpcomingList';
 import ObligationsFilters from './components/ObligationsFilters/ObligationsFilters';
 import ObligationsList from './components/ObligationsList/ObligationsList';
 import ObligationDetailsModal from './components/ObligationDetailsModal/ObligationDetailsModal';
+import Footer from './components/Footer/Footer';
 
 import './App.css';
 
@@ -17,6 +18,7 @@ function App() {
       <ObligationsFilters />
       <ObligationsList />
       <ObligationDetailsModal />
+      <Footer />
     </BrowserRouter>
   );
 }
