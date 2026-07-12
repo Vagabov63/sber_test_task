@@ -13,11 +13,12 @@ const useObligationsStore = create((set, get) => ({
   obligations: [],
   upcomingObligations: [],
   renewalAlerts: [],
-  loading: false,
+  loadingObligations: false,
+  loadingUpcoming: false,
   error: null,
 
   loadObligations: async (filters) => {
-    set({ loading: true, error: null });
+    set({ loadingObligations: true, error: null });
     try {
       const data = await getObligations(filters);
 
@@ -27,11 +28,11 @@ const useObligationsStore = create((set, get) => ({
 
       set({
         obligations: sortedData,
-        loading: false,
+        loadingObligations: false,
       });
       get().updateCurrentMonthTotals();
     } catch (error) {
-      set({ error: error.message, loading: false });
+      set({ error: error.message, loadingObligations: false });
     }
   },
 
@@ -69,7 +70,7 @@ const useObligationsStore = create((set, get) => ({
   },
 
   loadUpcomingObligations: async () => {
-    set({ loading: true, error: null });
+    set({ loadingUpcoming: true, error: null });
     try {
       const response = await getUpcomingObligations();
 
@@ -91,13 +92,13 @@ const useObligationsStore = create((set, get) => ({
         upcomingObligations: obligations,
         totals: totals,
         renewalAlerts: filteredAlerts,
-        loading: false,
+        loadingUpcoming: false,
       });
     } catch (error) {
       console.error('Ошибка загрузки:', error);
       set({
         error: error.message || 'Ошибка загрузки',
-        loading: false,
+        loadingUpcoming: false,
       });
     }
   },

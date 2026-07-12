@@ -7,7 +7,7 @@ import './UpcomingList.css';
 
 export default function UpcomingList() {
   const { 
-    loading, 
+    loadingUpcoming, 
     error,
     renewalAlerts,
     cancelObligation,
@@ -62,7 +62,7 @@ export default function UpcomingList() {
     }
   };
 
-  if (loading) return <div>Загрузка...</div>;
+  if (loadingUpcoming) return <div>Загрузка...</div>;
   if (error) return <div>Ошибка: {error}</div>;
 
   if (!renewalAlerts || renewalAlerts.length === 0) {
